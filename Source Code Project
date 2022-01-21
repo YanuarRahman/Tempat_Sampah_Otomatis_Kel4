@@ -1,0 +1,107 @@
+#include <Servo.h>
+#include <LiquidCrystal.h> 
+
+const int rs = 7, en = 6, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+Servo servo1;
+
+int trigerOUT = 11;
+int echoOUT = 12;
+int trigerIN = 9;
+int echoIN = 10;
+int led=13;
+
+byte merah = A1;
+byte merah1 = A2;
+int pos=0;
+
+
+float durasiIN, jarakIN, durasiOUT, jarakOUT;
+
+void setup()
+  {
+  Serial.begin(9600);
+    
+  servo1.attach(13);
+  
+  servo1.write(0);
+  
+  pinMode(led,OUTPUT);
+  pinMode(trigerOUT, OUTPUT);
+  pinMode(echoOUT, INPUT); 
+  pinMode(trigerIN, OUTPUT);
+  pinMode(echoIN, INPUT); 
+  
+  lcd.begin(16, 2);
+  lcd.clear();
+  
+    
+  delay(500);
+}
+
+void loop()
+{
+  
+  digitalWrite(trigerOUT, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigerOUT, LOW);
+  
+  durasiOUT = pulseIn(echoOUT, HIGH);
+  jarakOUT = ((durasiOUT * 0.034) / 2);
+
+  digitalWrite(trigerIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigerIN, LOW);
+  
+  durasiIN = pulseIn(echoIN, HIGH);
+  jarakIN = ((durasiIN * 0.034) / 2);
+  
+  Serial.print("Jarak: ");
+  Serial.println(jarakIN);
+  lcd.setCursor(0, 1);
+  digitalWrite(merah, LOW);
+  digitalWrite(merah1, LOW);
+  
+  if (jarakIN <= 5)
+  {
+    lcd.setCursor(0,0);
+    lcd.clear();
+    lcd.print("Sampah Penuh");
+    lcd.setCursor(0, 1);
+    lcd.print("Segera Buang");
+    digitalWrite(merah, HIGH);
+    digitalWrite(merah1, HIGH);
+    delay(100);
+  }
+  
+   if (jarakOUT <= 10 )
+    { 
+      digitalWrite(led,HIGH);
+      for (pos = 0; pos <= 40;pos++) { 
+        servo1.write(pos);             
+        delay(15);                     
+      }
+      
+      lcd.setCursor(0,0);
+      lcd.print("Penutup Terbuka "); 
+      lcd.setCursor(0,1);
+      lcd.print("                  "); 
+      delay(2000);
+    }
+    else
+    {
+      servo1.write(0);                          
+      lcd.setCursor(0,0);
+//      lcd.print("Have A Nice day"); 
+      lcd.setCursor(0,1);
+//      lcd.print("                  "); ;
+    }
+
+  
+  
+  
+
+  delay(100); 
+
+}
